@@ -1,5 +1,6 @@
 package krystian.adamczyk.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -7,8 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotNull;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -18,10 +17,10 @@ import java.util.Date;
 public class BoardMessage {
   @Id
   @GeneratedValue
-  @NotNull
   private int id;
   @ManyToOne
   @JoinColumn(name="user_id", nullable=false)
+  @JsonBackReference
   private User author;
   private String title;
   private String message;

@@ -29,4 +29,6 @@ public interface InzynierkaService {
   List<Room> listRooms();
 
   List<Room> listAllLaundry();
+
+  List<Room> listAllExceptLaundry();
 }
