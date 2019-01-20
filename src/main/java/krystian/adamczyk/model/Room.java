@@ -1,6 +1,8 @@
 package krystian.adamczyk.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,16 +12,16 @@ import javax.persistence.ManyToOne;
 
 @Data
 @Entity
+@NoArgsConstructor
 public class Room {
   @Id
   @GeneratedValue
   private int id;
-  @ManyToOne
-  @JoinColumn(name="room_type", nullable=false)
-  private RoomType roomType;
+  private String roomName;
   private boolean isOccupied;
-  private int keyInRoomNumber;
+  private Integer keyInRoomNumber;
+  private Integer roomNumber;
   @ManyToOne
-  @JoinColumn(name="user_id", nullable=false)
+  @JoinColumn(name="user_id")
   private User occupiedByUser;
 }

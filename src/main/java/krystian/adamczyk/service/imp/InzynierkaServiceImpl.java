@@ -5,12 +5,12 @@ import krystian.adamczyk.model.Room;
 import krystian.adamczyk.model.User;
 import krystian.adamczyk.repository.BoardMessageJpaRepository;
 import krystian.adamczyk.repository.RoomJpaRepository;
-import krystian.adamczyk.repository.RoomTypeJpaRepository;
 import krystian.adamczyk.repository.UserJpaRepository;
 import krystian.adamczyk.service.InzynierkaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,15 +19,15 @@ public class InzynierkaServiceImpl implements InzynierkaService {
 
   private UserJpaRepository userJpaRepository;
   private RoomJpaRepository roomJpaRepository;
-  private RoomTypeJpaRepository roomTypeJpaRepository;
   private BoardMessageJpaRepository boardMessageJpaRepository;
+  private DatabaseFillerOnStartup dtabaseFillerOnStartup;
 
   @Autowired
-  public InzynierkaServiceImpl(UserJpaRepository userJpaRepository, RoomJpaRepository roomJpaRepository, RoomTypeJpaRepository roomTypeJpaRepository, BoardMessageJpaRepository boardMessageJpaRepository){
+  public InzynierkaServiceImpl(UserJpaRepository userJpaRepository, RoomJpaRepository roomJpaRepository, BoardMessageJpaRepository boardMessageJpaRepository, DatabaseFillerOnStartup dtabaseFillerOnStartup){
     this.userJpaRepository=userJpaRepository;
     this.roomJpaRepository=roomJpaRepository;
-    this.roomTypeJpaRepository=roomTypeJpaRepository;
     this.boardMessageJpaRepository=boardMessageJpaRepository;
+    this.dtabaseFillerOnStartup=dtabaseFillerOnStartup;
   }
 
   @Override
@@ -42,7 +42,8 @@ public class InzynierkaServiceImpl implements InzynierkaService {
 
   @Override
   public List<BoardMessage> listBoardMessages() {
-    return boardMessageJpaRepository.findAll();
+    List<BoardMessage> l = boardMessageJpaRepository.findAll();
+    return l;
   }
 
   @Override
@@ -86,17 +87,29 @@ public class InzynierkaServiceImpl implements InzynierkaService {
 
   @Override
   public List<Room> listRooms() {
-    return roomJpaRepository.findAll();
+    List<Room> tmp = getRooms();
+    List<Room> returnList = new ArrayList<>();
+    for(Room r : tmp){
+      if(!r.getRoomName().contains("Pralnia")){
+        returnList.add(r);
+      }
+    }
+    return returnList;
   }
 
   @Override
   public List<Room> listAllLaundry() {
-    List<Room> allRooms = listRooms();
-    for(Room r : allRooms){
-      if(!r.getRoomType().getRoomName().equals("pralnia")){
-        allRooms.remove(r);
+    List<Room> tmp = getRooms();
+    List<Room> returnList = new ArrayList<>();
+    for(Room r : tmp){
+      if(r.getRoomName().contains("Pralnia")){
+        returnList.add(r);
       }
     }
-    return allRooms;
+    return returnList;
+  }
+
+  public List<Room> getRooms() {
+    return roomJpaRepository.findAll();
   }
 }

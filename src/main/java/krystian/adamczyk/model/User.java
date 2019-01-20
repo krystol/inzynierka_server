@@ -1,7 +1,9 @@
 package krystian.adamczyk.model;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -13,16 +15,13 @@ import java.util.Set;
 
 @Data
 @Entity
+@NoArgsConstructor
 public class User {
   @Id
   @GeneratedValue
   @NotNull
   private int id;
-  private int livingInRoomNumber;
+  private Integer livingInRoomNumber;
   private String firstName;
   private String lastName;
-  @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
-  private Set<BoardMessage> boardMessages;
-  @OneToMany(mappedBy = "occupiedByUser", cascade = CascadeType.PERSIST)
-  private Set<Room> occupiedRooms;
 }
