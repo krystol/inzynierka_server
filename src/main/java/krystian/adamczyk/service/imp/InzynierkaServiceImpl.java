@@ -1,5 +1,6 @@
 package krystian.adamczyk.service.imp;
 
+import krystian.adamczyk.model.ApplicationException;
 import krystian.adamczyk.model.BoardMessage;
 import krystian.adamczyk.model.Room;
 import krystian.adamczyk.model.User;
@@ -31,19 +32,13 @@ public class InzynierkaServiceImpl implements InzynierkaService {
   }
 
   @Override
-  public User findUser(int id) throws Exception {
-    Optional<User> student = userJpaRepository.findById(id);
-
-    if (!student.isPresent())
-      throw new Exception();
-
-    return student.get();
+  public User findUser(int id) throws ApplicationException {
+    return userJpaRepository.findById(id).orElseThrow(ApplicationException::new);
   }
 
   @Override
   public List<BoardMessage> listBoardMessages() {
-    List<BoardMessage> l = boardMessageJpaRepository.findAll();
-    return l;
+    return boardMessageJpaRepository.findAll();
   }
 
   @Override
@@ -62,31 +57,12 @@ public class InzynierkaServiceImpl implements InzynierkaService {
   }
 
   @Override
-  public void bookRoom(Room room, User user) {
-    room.setOccupied(true);
-    room.setOccupiedByUser(user);
+  public void saveRoom(Room room) {
     roomJpaRepository.save(room);
   }
 
   @Override
-  public void freeRoom(Room room) {
-    room.setOccupied(false);
-    room.setOccupiedByUser(null);
-    roomJpaRepository.save(room);
-  }
-
-  @Override
-  public void prolongBookingOfRoom(Room room) {
-
-  }
-
-  @Override
-  public boolean isRoomOccupied(Room room) {
-    return roomJpaRepository.findById(room.getId()).get().isOccupied();
-  }
-
-  @Override
-  public List<Room> listRooms() {
+  public List<Room> listRoomsExceptLaundry() {
     List<Room> tmp = getRooms();
     List<Room> returnList = new ArrayList<>();
     for(Room r : tmp){
@@ -109,7 +85,31 @@ public class InzynierkaServiceImpl implements InzynierkaService {
     return returnList;
   }
 
-  public List<Room> getRooms() {
+  @Override
+  public User saveUser(User user) {
+    return userJpaRepository.save(user);
+  }
+
+  @Override
+  public User updateUser(User user) throws ApplicationException{
+    User toBeUpdated = findUser(user.getId());
+    toBeUpdated.setFirstName(user.getFirstName());
+    toBeUpdated.setLastName(user.getLastName());
+    toBeUpdated.setLivingInRoomNumber(user.getLivingInRoomNumber());
+    return saveUser(toBeUpdated);
+  }
+
+  @Override
+  public void removeUser(User user) throws ApplicationException {
+    User updated = findUser(user.getId());
+    userJpaRepository.delete(updated);
+  }
+
+  private List<Room> getRooms() {
     return roomJpaRepository.findAll();
+  }
+
+  public User findFirstUserByFirstNameAndLastName(String firstName, String lastName){
+    return userJpaRepository.findUserByFirstNameAndLastName(firstName,lastName);
   }
 }

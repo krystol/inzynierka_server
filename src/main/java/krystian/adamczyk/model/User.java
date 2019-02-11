@@ -1,25 +1,19 @@
 package krystian.adamczyk.model;
 
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.validation.constraints.NotNull;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Data
 @Entity
-@NoArgsConstructor
 public class User {
   @Id
-  @GeneratedValue
-  @NotNull
+  @GeneratedValue(strategy= GenerationType.IDENTITY)
   private int id;
   private Integer livingInRoomNumber;
   private String firstName;

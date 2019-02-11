@@ -1,5 +1,6 @@
 package krystian.adamczyk.service;
 
+import krystian.adamczyk.model.ApplicationException;
 import krystian.adamczyk.model.BoardMessage;
 import krystian.adamczyk.model.Room;
 import krystian.adamczyk.model.User;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public interface InzynierkaService {
 
-  User findUser(int id) throws Exception;
+  User findUser(int id);
 
   List<BoardMessage> listBoardMessages();
 
@@ -18,15 +19,16 @@ public interface InzynierkaService {
 
   void edytujOgloszenie(BoardMessage boardMessage);
 
-  void bookRoom(Room room, User user);
+  void saveRoom(Room room);
 
-  void freeRoom(Room room);
-
-  void prolongBookingOfRoom(Room room);
-
-  boolean isRoomOccupied(Room room);
-
-  List<Room> listRooms();
+  List<Room> listRoomsExceptLaundry();
 
   List<Room> listAllLaundry();
+
+  User saveUser(User user);
+
+  User updateUser(User user);
+
+  void removeUser(User user);
+  User findFirstUserByFirstNameAndLastName(String firstName, String lastName);
 }

@@ -28,10 +28,15 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 
   @Override
   public void onApplicationEvent(ContextRefreshedEvent event) {
+    User ux = new User();
+    ux.setFirstName("Krystian");
+    ux.setLastName("Adamczyk");
+    ux.setLivingInRoomNumber(214);
+    userJpaRepository.save(ux);
     User u = new User();
     u.setFirstName("Tomasz");
     u.setLastName("Iksinski");
-    u.setLivingInRoomNumber(214);
+    u.setLivingInRoomNumber(215);
     userJpaRepository.save(u);
     User u2 = new User();
     u2.setFirstName("Jakub");
