@@ -2,33 +2,46 @@ package krystian.adamczyk.service.imp;
 
 import krystian.adamczyk.model.ApplicationException;
 import krystian.adamczyk.model.BoardMessage;
+import krystian.adamczyk.model.LaundryDay;
+import krystian.adamczyk.model.LaundryRoom;
 import krystian.adamczyk.model.Room;
 import krystian.adamczyk.model.User;
 import krystian.adamczyk.repository.BoardMessageJpaRepository;
+import krystian.adamczyk.repository.LaundryDayJpaRepository;
+import krystian.adamczyk.repository.LaundryRoomJpaRepository;
 import krystian.adamczyk.repository.RoomJpaRepository;
 import krystian.adamczyk.repository.UserJpaRepository;
 import krystian.adamczyk.service.InzynierkaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InzynierkaServiceImpl implements InzynierkaService {
 
+  private LaundryRoomJpaRepository laundryRoomJpaRepository;
+  private LaundryDayJpaRepository laundryDayJpaRepository;
   private UserJpaRepository userJpaRepository;
   private RoomJpaRepository roomJpaRepository;
   private BoardMessageJpaRepository boardMessageJpaRepository;
   private DatabaseFillerOnStartup dtabaseFillerOnStartup;
 
   @Autowired
-  public InzynierkaServiceImpl(UserJpaRepository userJpaRepository, RoomJpaRepository roomJpaRepository, BoardMessageJpaRepository boardMessageJpaRepository, DatabaseFillerOnStartup dtabaseFillerOnStartup){
+  public InzynierkaServiceImpl(UserJpaRepository userJpaRepository,
+                               RoomJpaRepository roomJpaRepository,
+                               BoardMessageJpaRepository boardMessageJpaRepository,
+                               DatabaseFillerOnStartup dtabaseFillerOnStartup,
+                               LaundryRoomJpaRepository laundryRoomJpaRepository,
+                               LaundryDayJpaRepository laundryDayJpaRepository){
     this.userJpaRepository=userJpaRepository;
     this.roomJpaRepository=roomJpaRepository;
     this.boardMessageJpaRepository=boardMessageJpaRepository;
     this.dtabaseFillerOnStartup=dtabaseFillerOnStartup;
+    this.laundryRoomJpaRepository = laundryRoomJpaRepository;
+    this.laundryDayJpaRepository = laundryDayJpaRepository;
   }
 
   @Override
@@ -62,27 +75,25 @@ public class InzynierkaServiceImpl implements InzynierkaService {
   }
 
   @Override
-  public List<Room> listRoomsExceptLaundry() {
-    List<Room> tmp = getRooms();
-    List<Room> returnList = new ArrayList<>();
-    for(Room r : tmp){
-      if(!r.getRoomName().contains("Pralnia")){
-        returnList.add(r);
-      }
-    }
-    return returnList;
+  public List<Room> listRooms() {
+      return roomJpaRepository.findAll();
   }
 
   @Override
-  public List<Room> listAllLaundry() {
-    List<Room> tmp = getRooms();
-    List<Room> returnList = new ArrayList<>();
-    for(Room r : tmp){
-      if(r.getRoomName().contains("Pralnia")){
-        returnList.add(r);
-      }
-    }
-    return returnList;
+  public List<LaundryRoom> listAllLaundry() {
+    return laundryRoomJpaRepository.findAll();
+  }
+
+  @Override
+  public LaundryDay findLaundryDayByRoomIdAndDate(int roomId, String date) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+    LocalDate localDate = LocalDate.parse(date,formatter);
+    return laundryDayJpaRepository.findByLaundryIdAndDate(roomId,localDate).orElseThrow(ApplicationException::new);
+  }
+
+  @Override
+  public LaundryDay saveLaundryDayByRoomIdAndDate(LaundryDay room) {
+    return laundryDayJpaRepository.save(room);
   }
 
   @Override
@@ -103,10 +114,6 @@ public class InzynierkaServiceImpl implements InzynierkaService {
   public void removeUser(User user) throws ApplicationException {
     User updated = findUser(user.getId());
     userJpaRepository.delete(updated);
-  }
-
-  private List<Room> getRooms() {
-    return roomJpaRepository.findAll();
   }
 
   public User findFirstUserByFirstNameAndLastName(String firstName, String lastName){

@@ -1,4 +1,3 @@
-/*
 package krystian.adamczyk.controller;
 
 import krystian.adamczyk.model.AuthenticationRequest;
@@ -58,4 +57,5 @@ public class AuthenticationController {
         .token(session.getId())
         .build();
   }
-}*/
+
+}

@@ -2,6 +2,7 @@ package krystian.adamczyk.controller;
 
 import krystian.adamczyk.model.ApplicationException;
 import krystian.adamczyk.model.BoardMessage;
+import krystian.adamczyk.model.LaundryDay;
 import krystian.adamczyk.model.Room;
 import krystian.adamczyk.model.User;
 import krystian.adamczyk.service.InzynierkaService;
@@ -59,7 +60,7 @@ public class InformatorController {
   @GetMapping(value = "/getrooms", produces = "application/json")
   public ResponseEntity listRooms(){
     try{
-      return new ResponseEntity<>(service.listRoomsExceptLaundry(),HttpStatus.OK);
+      return new ResponseEntity<>(service.listRooms(),HttpStatus.OK);
     } catch (Exception e){
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -72,6 +73,21 @@ public class InformatorController {
     } catch (Exception e){
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+  }
+
+  @GetMapping(value = "/getlaundryday/{id}/{date}", produces = "application/json")
+  public ResponseEntity sendLaundryDay(@PathVariable int id, @PathVariable String date){
+    try{
+      return new ResponseEntity<>(service.findLaundryDayByRoomIdAndDate(id, date),HttpStatus.OK);
+    } catch (Exception e){
+      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @PostMapping(value = "/saveLaundryDay")
+  public ResponseEntity saveLaundryDay(@RequestBody LaundryDay room){
+    LaundryDay  savedRoom = service.saveLaundryDayByRoomIdAndDate(room);
+    return new ResponseEntity<>(savedRoom,HttpStatus.CREATED);
   }
 
   @PostMapping(value = "/saveBoardMessage")

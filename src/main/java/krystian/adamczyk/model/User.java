@@ -3,6 +3,7 @@ package krystian.adamczyk.model;
 
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,4 +19,6 @@ public class User {
   private Integer livingInRoomNumber;
   private String firstName;
   private String lastName;
+  @Column(unique = true)
+  private String username;
 }
