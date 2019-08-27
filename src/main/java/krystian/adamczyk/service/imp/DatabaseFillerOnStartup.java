@@ -57,7 +57,7 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
     User ux = new User();
     ux.setFirstName("Krystian");
     ux.setLastName("Adamczyk");
-    ux.setUsername("test");
+    ux.setUsername("test@test.pl");
     ux.setLivingInRoomNumber(214);
     userJpaRepository.save(ux);
     User u = new User();

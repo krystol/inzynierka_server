@@ -1,11 +1,13 @@
 package krystian.adamczyk.service.imp;
 
 import krystian.adamczyk.model.ApplicationException;
+import krystian.adamczyk.model.AuthenticationRequest;
 import krystian.adamczyk.model.BoardMessage;
 import krystian.adamczyk.model.LaundryDay;
 import krystian.adamczyk.model.LaundryRoom;
 import krystian.adamczyk.model.Room;
 import krystian.adamczyk.model.User;
+import krystian.adamczyk.repository.AuthenticationJpaRepository;
 import krystian.adamczyk.repository.BoardMessageJpaRepository;
 import krystian.adamczyk.repository.LaundryDayJpaRepository;
 import krystian.adamczyk.repository.LaundryRoomJpaRepository;
@@ -28,6 +30,7 @@ public class InzynierkaServiceImpl implements InzynierkaService {
   private RoomJpaRepository roomJpaRepository;
   private BoardMessageJpaRepository boardMessageJpaRepository;
   private DatabaseFillerOnStartup dtabaseFillerOnStartup;
+  private AuthenticationJpaRepository authenticationJpaRepository;
 
   @Autowired
   public InzynierkaServiceImpl(UserJpaRepository userJpaRepository,
@@ -35,13 +38,15 @@ public class InzynierkaServiceImpl implements InzynierkaService {
                                BoardMessageJpaRepository boardMessageJpaRepository,
                                DatabaseFillerOnStartup dtabaseFillerOnStartup,
                                LaundryRoomJpaRepository laundryRoomJpaRepository,
-                               LaundryDayJpaRepository laundryDayJpaRepository){
+                               LaundryDayJpaRepository laundryDayJpaRepository,
+                               AuthenticationJpaRepository authenticationJpaRepository){
     this.userJpaRepository=userJpaRepository;
     this.roomJpaRepository=roomJpaRepository;
     this.boardMessageJpaRepository=boardMessageJpaRepository;
     this.dtabaseFillerOnStartup=dtabaseFillerOnStartup;
     this.laundryRoomJpaRepository = laundryRoomJpaRepository;
     this.laundryDayJpaRepository = laundryDayJpaRepository;
+    this.authenticationJpaRepository = authenticationJpaRepository;
   }
 
   @Override
@@ -99,6 +104,11 @@ public class InzynierkaServiceImpl implements InzynierkaService {
   @Override
   public User saveUser(User user) {
     return userJpaRepository.save(user);
+  }
+
+  @Override
+  public AuthenticationRequest saveCreds(AuthenticationRequest request) {
+    return authenticationJpaRepository.save(request);
   }
 
   @Override
