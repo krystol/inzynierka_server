@@ -5,6 +5,7 @@ import krystian.adamczyk.model.AuthenticationRequest;
 import krystian.adamczyk.model.AuthenticationResult;
 import krystian.adamczyk.model.RegisterRequest;
 import krystian.adamczyk.model.User;
+import krystian.adamczyk.model.UserCredentials;
 import krystian.adamczyk.service.InzynierkaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +87,7 @@ public class AuthenticationController {
 //      ar.setUsername(registerRequest.getUsername());
 //      ar.setPassword(registerRequest.getPassword());
 //      service.saveCreds(ar);
-      //inMemoryUserDetailsManager.createUser(User.withUsername(registerRequest.getUsername()).password(registerRequest.getPassword()).roles("USER").build());
+      inMemoryUserDetailsManager.createUser(UserCredentials.builder().username(registerRequest.getUsername()).password(registerRequest.getPassword()).role("USER").build());
     } catch (ApplicationException e) {
       service.removeUser(u);
     log.debug("Error during saving credentials");
