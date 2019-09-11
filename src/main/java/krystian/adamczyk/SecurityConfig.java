@@ -1,5 +1,7 @@
 package krystian.adamczyk;
 
+import javax.sql.DataSource;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,53 +9,47 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-
-import java.util.Properties;
 
 @Configuration
-@EnableWebSecurity
+//@EnableWebSecurity
+@AllArgsConstructor
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-  @Autowired
-  public void configureGlobal(AuthenticationManagerBuilder auth) {
-    PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-//    auth.inMemoryAuthentication()
-//        .withUser("test").password(encoder.encode("test")).roles("ADMIN");
-  }
+    private DataSource dataSource;
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http
-        .httpBasic()
-        .and()
-        .authorizeRequests()
-        .antMatchers(HttpMethod.POST, "/**").permitAll()
-        .antMatchers("/auth/signin","/auth/register","/").permitAll()
-        .anyRequest().authenticated()
-        .and()
-        .csrf().disable();
-  }
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth.
+            jdbcAuthentication()
+                .usersByUsernameQuery("select username, password from authentication_request")
+                .authoritiesByUsernameQuery("select username, authority from authorities")
+                .dataSource(this.dataSource);
+    }
 
-  @Override
-  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(inMemoryUserDetailsManager());
-  }
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+                .httpBasic()
+                .and()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/**").permitAll()
+                .antMatchers("/auth/signin", "/auth/register").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .csrf().disable();
+    }
 
-  @Bean
-  public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
-    final Properties users = new Properties();
-    users.put("test","pass,ADMIN,enabled"); //add whatever other user you need
-    return new InMemoryUserDetailsManager(users);
-  }
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
-  @Bean
-  @Override
-  public AuthenticationManager authenticationManagerBean() throws Exception {
-    return super.authenticationManagerBean();
-  }
+    @Bean
+    public PasswordEncoder getPasswordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
 }

@@ -1,5 +1,9 @@
 package krystian.adamczyk.controller;
 
+import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import krystian.adamczyk.model.ApplicationException;
 import krystian.adamczyk.model.AuthenticationRequest;
 import krystian.adamczyk.model.AuthenticationResult;
@@ -12,8 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,12 +25,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 
 @RequestMapping(value = "/auth")
@@ -41,12 +39,7 @@ public class AuthenticationController {
   private AuthenticationManager authenticationManager;
 
   @Autowired
-  private InMemoryUserDetailsManager inMemoryUserDetailsManager;
-
-  @RequestMapping("exists/{username}")
-  public boolean userExists(@PathVariable("username") String username ) {
-    return inMemoryUserDetailsManager.userExists(username);
-  }
+  private PasswordEncoder passwordEncoder;
 
   @PostMapping(value = "/signin")
   public AuthenticationResult signin(
@@ -59,7 +52,7 @@ public class AuthenticationController {
 
     return this.handleAuthentication(
         authenticationRequest.getUsername(),
-        authenticationRequest.getPassword(),
+            "{noop}"+authenticationRequest.getPassword(),
         request);
   }
 
@@ -83,11 +76,10 @@ public class AuthenticationController {
       log.debug("Error during registering new user");
     }
     try{
-//      AuthenticationRequest ar = new AuthenticationRequest();
-//      ar.setUsername(registerRequest.getUsername());
-//      ar.setPassword(registerRequest.getPassword());
-//      service.saveCreds(ar);
-      inMemoryUserDetailsManager.createUser(UserCredentials.builder().username(registerRequest.getUsername()).password(registerRequest.getPassword()).role("USER").build());
+      AuthenticationRequest ar = new AuthenticationRequest();
+      ar.setUsername(registerRequest.getUsername());
+      ar.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+      service.saveCreds(ar);
     } catch (ApplicationException e) {
       service.removeUser(u);
     log.debug("Error during saving credentials");
