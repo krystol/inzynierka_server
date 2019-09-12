@@ -1,6 +1,7 @@
 package krystian.adamczyk.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import javax.persistence.ManyToOne;
 @Data
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 public class Room {
   @Id
   @GeneratedValue

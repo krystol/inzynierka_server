@@ -18,4 +18,6 @@ public class AuthenticationRequest implements Serializable {
   @Column(unique = true)
   private String username;
   private String password;
+  private int enabled;
+
 }

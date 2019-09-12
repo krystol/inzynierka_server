@@ -40,6 +40,7 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
         AuthenticationRequest ar = new AuthenticationRequest();
         ar.setUsername("test");
         ar.setPassword(encoder.encode("test"));
+        ar.setEnabled(1);
         authenticationJpaRepository.save(ar);
         Authorities auth = new Authorities();
         auth.setUsername("test");

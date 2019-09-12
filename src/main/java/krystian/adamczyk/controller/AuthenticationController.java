@@ -51,7 +51,7 @@ public class AuthenticationController {
 
         return this.handleAuthentication(
                 authenticationRequest.getUsername(),
-                "{noop}" + authenticationRequest.getPassword(),
+                authenticationRequest.getPassword(),
                 request);
     }
 
@@ -101,6 +101,7 @@ public class AuthenticationController {
     private AuthenticationResult handleAuthentication(String username, String password, HttpServletRequest request) {
 
         final UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+        log.info("## handleAuthentication {}",token);
         final Authentication authentication = this.authenticationManager.authenticate(token);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         final HttpSession session = request.getSession(true);

@@ -9,12 +9,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
 @AllArgsConstructor
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -24,8 +25,8 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.
             jdbcAuthentication()
-                .usersByUsernameQuery("select username, password from authentication_request")
-                .authoritiesByUsernameQuery("select username, authority from authorities")
+                .usersByUsernameQuery("select username, password, enabled from authentication_request where username = ?")
+                .authoritiesByUsernameQuery("select username, authority from authorities where username = ?")
                 .dataSource(this.dataSource);
     }
 
