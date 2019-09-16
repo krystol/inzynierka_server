@@ -116,6 +116,7 @@ public class InzynierkaServiceImpl implements InzynierkaService {
         return userJpaRepository.findUserByFirstNameAndLastName(firstName, lastName);
     }
 
+    @Override
     public Authorities saveAuthority(Authorities authorities) {
         return repository.save(authorities);
     }

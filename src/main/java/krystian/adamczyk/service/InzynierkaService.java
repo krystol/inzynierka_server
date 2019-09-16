@@ -2,6 +2,7 @@ package krystian.adamczyk.service;
 
 import krystian.adamczyk.model.ApplicationException;
 import krystian.adamczyk.model.AuthenticationRequest;
+import krystian.adamczyk.model.Authorities;
 import krystian.adamczyk.model.BoardMessage;
 import krystian.adamczyk.model.LaundryDay;
 import krystian.adamczyk.model.LaundryRoom;
@@ -41,4 +42,6 @@ public interface InzynierkaService {
   void removeUser(User user);
 
   User findFirstUserByFirstNameAndLastName(String firstName, String lastName);
+
+  Authorities saveAuthority(Authorities authorities);
 }

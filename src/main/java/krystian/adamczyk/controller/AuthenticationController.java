@@ -64,16 +64,11 @@ public class AuthenticationController {
             log.debug("register form  data@" + registerRequest);
         }
 
-        registerEntities(registerRequest);
+        return registerEntities(registerRequest, request);
 
-        return this.handleAuthentication(
-                registerRequest.getUsername(),
-                registerRequest.getPassword(),
-                request);
     }
 
-    @Transactional
-    private void registerEntities(@Valid @RequestBody RegisterRequest registerRequest) {
+    private AuthenticationResult registerEntities(@Valid @RequestBody RegisterRequest registerRequest, HttpServletRequest request) {
         String username = registerRequest.getUsername();
         User u = new User();
         u.setFirstName(registerRequest.getFirstName());
@@ -89,13 +84,20 @@ public class AuthenticationController {
             AuthenticationRequest ar = new AuthenticationRequest();
             ar.setUsername(username);
             ar.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+            ar.setEnabled(1);
             service.saveCreds(ar);
             Authorities authority = new Authorities();
             authority.setUsername(username);
             authority.setAuthority("ROLE_USER");
+            service.saveAuthority(authority);
+
         } catch (ApplicationException e) {
             log.debug("Error during saving credentials");
         }
+        return this.handleAuthentication(
+                registerRequest.getUsername(),
+                registerRequest.getPassword(),
+                request);
     }
 
     private AuthenticationResult handleAuthentication(String username, String password, HttpServletRequest request) {

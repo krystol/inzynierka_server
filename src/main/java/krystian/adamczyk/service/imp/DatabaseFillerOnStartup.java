@@ -1,11 +1,15 @@
 package krystian.adamczyk.service.imp;
 
 import java.time.LocalDate;
+import javax.transaction.Transactional;
+import javax.validation.Valid;
+import krystian.adamczyk.model.ApplicationException;
 import krystian.adamczyk.model.AuthenticationRequest;
 import krystian.adamczyk.model.Authorities;
 import krystian.adamczyk.model.BoardMessage;
 import krystian.adamczyk.model.LaundryDay;
 import krystian.adamczyk.model.LaundryRoom;
+import krystian.adamczyk.model.RegisterRequest;
 import krystian.adamczyk.model.Room;
 import krystian.adamczyk.model.User;
 import krystian.adamczyk.repository.AuthenticationJpaRepository;
@@ -15,14 +19,19 @@ import krystian.adamczyk.repository.LaundryDayJpaRepository;
 import krystian.adamczyk.repository.LaundryRoomJpaRepository;
 import krystian.adamczyk.repository.RoomJpaRepository;
 import krystian.adamczyk.repository.UserJpaRepository;
+import krystian.adamczyk.service.InzynierkaService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefreshedEvent> {
 
 
@@ -33,23 +42,32 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
     private final BoardMessageJpaRepository boardMessageJpaRepository;
     private final AuthenticationJpaRepository authenticationJpaRepository;
     private final AuthoritiesJpaRepository authoritiesJpaRepository;
-    private final PasswordEncoder encoder;
+    private final PasswordEncoder passwordEncoder;
+
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        AuthenticationRequest ar = new AuthenticationRequest();
-        ar.setUsername("test");
-        ar.setPassword(encoder.encode("test"));
-        ar.setEnabled(1);
-        authenticationJpaRepository.save(ar);
-        Authorities auth = new Authorities();
-        auth.setUsername("test");
-        auth.setAuthority("ROLE_ADMIN");
-        authoritiesJpaRepository.save(auth);
+//        AuthenticationRequest ar = new AuthenticationRequest();
+//        ar.setUsername("test");
+//        ar.setPassword(encoder.encode("test"));
+//        ar.setEnabled(1);
+//        authenticationJpaRepository.save(ar);
+//        Authorities auth = new Authorities();
+//        auth.setUsername("test");
+//        auth.setAuthority("ROLE_ADMIN");
+//        authoritiesJpaRepository.save(auth);
+
+        RegisterRequest request = new RegisterRequest();
+        request.setFirstName("testName");
+        request.setLastName("testSurname");
+        request.setUsername("test@test");
+        request.setPassword("test");
+        request.setRoomNumber("1");
+        registerEntities(request);
         User ux = new User();
         ux.setFirstName("Krystian");
         ux.setLastName("Adamczyk");
-        ux.setUsername("test@test.pl");
+        ux.setUsername("test@inzynierka.pl");
         ux.setLivingInRoomNumber(214);
         userJpaRepository.save(ux);
         User u = new User();
@@ -158,5 +176,34 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
         lDay.setHour14(u.getFirstName() + " " + u.getLastName());
         lDay.setHour15(u.getFirstName() + " " + u.getLastName());
         laundryDayJpaRepository.save(lDay);
+    }
+
+
+    @Transactional
+    private void registerEntities(@Valid @RequestBody RegisterRequest registerRequest) {
+        String username = registerRequest.getUsername();
+        User u = new User();
+        u.setFirstName(registerRequest.getFirstName());
+        u.setLastName(registerRequest.getLastName());
+        u.setUsername(username);
+        u.setLivingInRoomNumber(Integer.valueOf(registerRequest.getRoomNumber()));
+        try {
+            userJpaRepository.save(u);
+        } catch (ApplicationException e) {
+            log.debug("Error during registering new user");
+        }
+        try {
+            AuthenticationRequest ar = new AuthenticationRequest();
+            ar.setUsername(username);
+            ar.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+            ar.setEnabled(1);
+            authenticationJpaRepository.save(ar);
+            Authorities authority = new Authorities();
+            authority.setUsername(username);
+            authority.setAuthority("ROLE_ADMIN");
+            authoritiesJpaRepository.save(authority);
+        } catch (ApplicationException e) {
+            log.debug("Error during saving credentials");
+        }
     }
 }
